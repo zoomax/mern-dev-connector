@@ -1,3 +1,4 @@
 {
-    "mongodbURI" : "mongodb+srv://hazemhemaily:H_t241199620102025@cluster0.yqghv.mongodb.net/dev-connector?retryWrites=true&w=majority"
+    "mongodbURI" : "mongodb+srv://hazemhemaily:H_t241199620102025@cluster0.yqghv.mongodb.net/dev-connector?retryWrites=true&w=majority" , 
+    "jwtSecret" : "thisismysecret"
 }

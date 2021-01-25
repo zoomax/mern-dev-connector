@@ -6,7 +6,8 @@ const profile = require("./routes/api/profile")
 const auth = require("./routes/api/auth") ; 
 const post = require("./routes/api/post") ; 
 connectDB() ; 
-
+// initializing middleware 
+app.use(express.json({extended : false})) ; 
 app.get("/", (req, res) => {
   res.send("api running");
 });
@@ -18,3 +19,4 @@ const PORT = process.env.port || 5000;
 app.listen(PORT, () => {
   console.log("app is running on port ", PORT);
 });
+ 
