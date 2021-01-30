@@ -38,7 +38,7 @@ const registerUser = async (req, res) => {
     if (password === confirmPassword) {
       const hash = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, hash);
-      console.log(hashedPassword) ; 
+      console.log(hashedPassword);
       const avatar = gravatar.url(email, {
         s: 200,
         r: "pg",
@@ -47,22 +47,14 @@ const registerUser = async (req, res) => {
       const newUser = new userModel({
         name,
         email,
-        password : hashedPassword,
+        password: hashedPassword,
         avatar,
       });
       await newUser.save();
-      const payload = {
-        user: {
-          id: newUser.id,
-        },
-      };
-      const token = jwt.sign(payload, config.get("jwtSecret"), {
-        expiresIn: 10800,
-      });
-      console.log(token)
+
       res.status(201).json({
         success: true,
-        token
+        user: newUser,
       });
     } else {
       return res.status(400).json({
@@ -77,6 +69,57 @@ const registerUser = async (req, res) => {
     });
   }
 };
+
+
+const loginUser  = async function (req ,res , next ) { 
+  try  { 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        erorrs: errors.array(),
+      });
+    }
+    const {email , password} = req.body ; 
+    const user = await userModel.findOne({email}); 
+    if(!user) { 
+      res.status(404).json({
+        success:false  , 
+        message :  "user is not exist" 
+      })
+    }
+    const isPassword = await bcrypt.compare(password ,user.password ) ; 
+    if(isPassword) { 
+      const payload  =  {
+        user :  { 
+          id : user.id 
+        } 
+
+      }
+      const newUser  = user.toObject(); 
+      delete newUser.tokens   ;
+      delete newUser.password ; 
+      const token =  jwt.sign(payload  , config.get("jwtSecret") , {expiresIn : 10800}) ; 
+      user.tokens.push(token)  ; 
+      res.status(200).json ({
+        success : true , 
+        user : {...newUser , token}
+      })
+      
+    }else { 
+      res.status(401).json({
+        success : false , 
+        message  : "email or password  are not correct"
+      })   }
+
+  }catch (err) { 
+    res.status(500).json({
+      success : false , 
+      message  : err.message
+    })   }
+  }
+
 module.exports = {
   registerUser,
+  loginUser,
 };
