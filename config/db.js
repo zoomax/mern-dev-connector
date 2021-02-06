@@ -7,7 +7,7 @@ const mongodbURI = config.get("mongodbURI"); // gets the value of passed propert
 const connectDB = async () => {
   try {
     await mongoose.connect(mongodbURI, {
-      useFindAndModify: true,
+      useFindAndModify: false,
       useUnifiedTopology: true,
       useNewUrlParser: true,
       useCreateIndex : true  
@@ -21,3 +21,4 @@ const connectDB = async () => {
 };
 
 module.exports = connectDB;
+//// "mongodbURI" : "mongodb+srv://hazemhemaily:H_t241199620102025@cluster0.yqghv.mongodb.net/dev-connector?retryWrites=true&w=majority" , 
