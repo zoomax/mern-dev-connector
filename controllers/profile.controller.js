@@ -1,7 +1,9 @@
-const ProfileModel = require("../models/profile.model");
 const { validationResult } = require("express-validator");
-const { Types } = require("mongoose");
+const request = require("request");
+const config = require("config");
+const ProfileModel = require("../models/profile.model");
 const UserModel = require("../models/user.model");
+const profileModel = require("../models/profile.model");
 
 const getCurrentUserProfile = async function (req, res) {
   const { user } = req;
@@ -179,12 +181,14 @@ const deleteUserProfile = async function (req, res) {
     });
   }
 };
+
+// add/delete profile experience
 const addProfileExperience = async function (req, res) {
-  const errors = validationResult(req);
-  let { id } = req.user;
-  let { title, location, from, to, company, current, description } = req.body;
   try {
-    if (!errors.isEmpty()) {
+    const errors = validationResult(req);
+    let { id } = req.user;
+    let { title, location, from, to, company, current, description } = req.body;
+    if (errors.isEmpty()) {
       const profile = await ProfileModel.findOne({ user: id });
       if (profile) {
         const newExp = {
@@ -196,31 +200,188 @@ const addProfileExperience = async function (req, res) {
           to,
           company,
         };
-        profile.experiences.unshift(newExp) ; 
-        await profile.save() ; 
+        profile.experience.unshift(newExp);
+        await profile.save();
         res.status(203).json({
-          success: true , 
-          profile 
-        })
-      }else { 
+          success: true,
+          profile,
+        });
+      } else {
         res.status(404).json({
-          success: false , 
-          message : "profile is  not exist"
-        })
+          success: false,
+          message: "profile is  not exist",
+        });
       }
     }
   } catch (error) {
     res.status(500).json({
-      success: false , 
-      message : "internal server error" , 
-      errors : error.massage
-    })
+      success: false,
+      message: "internal server error",
+      errors: error.massage,
+    });
   }
 };
+const deleteProfileExperience = async function (req, res) {
+  let { id } = req.user;
+  let expId = req.params.id;
+  try {
+    const profile = await profileModel.findOne({ user: id });
+    if (profile) {
+      let experience = profile.experience.findIndex((exp) => exp.id === expId);
+      if (experience != -1) {
+        profile.experience.splice(experience, 1);
+        await profile.save();
+        return res.status(202).json({
+          success: true,
+          message: "experience is deleted successfully",
+        });
+      }
+      return res.status(404).json({
+        success: true,
+        message: "there is no such experience",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "internal server error",
+      errors: error.message,
+    });
+  }
+};
+// end  add/delete profile experience
+// add/delete  profile education
+const addProfileEducation = async function (req, res) {
+  try {
+    const errors = validationResult(req);
+    console.log(errors);
+    let { id } = req.user;
+    let {
+      degree,
+      fieldofstudy,
+      from,
+      to,
+      school,
+      current,
+      description,
+    } = req.body;
+    if (errors.isEmpty()) {
+      const profile = await ProfileModel.findOne({ user: id });
+      if (profile) {
+        const newEdu = {
+          degree,
+          current,
+          description,
+          fieldofstudy,
+          from,
+          to,
+          school,
+        };
+        console.log(newEdu);
+        profile.education.unshift(newEdu);
+        await profile.save();
+        res.status(203).json({
+          success: true,
+          profile,
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: "profile is  not exist",
+        });
+      }
+    }
+    return res.status(400).json({
+      success: false,
+      message: "bad request",
+      errors: errors.array(),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      // success: false,
+      message: "internal server error",
+      errors: error.message,
+    });
+  }
+};
+const deleteProfileEducation = async function (req, res) {
+  let { id } = req.user;
+  let eduId = req.params.id;
+
+  try {
+    const profile = await profileModel.findOne({ user: id });
+    if (profile) {
+      let education = profile.education.findIndex((edu) => edu._id == eduId);
+
+      if (education != -1) {
+        profile.education.splice(education, 1);
+        await profile.save();
+        return res.status(202).json({
+          success: true,
+          message: "education is deleted successfully",
+          profile,
+        });
+      }
+      return res.status(404).json({
+        success: true,
+        message: "there is no such education",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "internal server error",
+      errors: error.message,
+    });
+  }
+};
+const getProfileGithubRepos = async function (req, res) {
+  try {
+    const options = {
+      uri: `https://api.github.com/users/${
+        req.params.username
+      }/repos?per_page=5&sort=created:asc&client_id=${config.get(
+        "githubClient"
+      )}&client_secret=${config.get("githubClientSecret")}`,
+      method: "GET",
+      headers: {
+        "user-agent": "node.js",
+      },
+    };
+    request(options, (error, response, body) => {
+      if (error) {
+        console.log(error);
+      }
+      if (response.statusCode !== 200) { 
+        return res.status(400).json({
+           success : false , 
+           message  :  "username not found" , 
+
+        }) 
+      }
+      return res.status(200).json({
+        success : true , 
+        repos  : JSON.parse(body)
+      })
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "internal server error",
+      errors: error.message,
+    });
+  }
+};
+
 module.exports = {
   getCurrentUserProfile,
   createOrUpdateProfile,
   getProfiles,
   getUserProfile,
   deleteUserProfile,
+  addProfileExperience,
+  deleteProfileExperience,
+  addProfileEducation,
+  deleteProfileEducation,
+  getProfileGithubRepos
 };
