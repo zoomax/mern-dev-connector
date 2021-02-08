@@ -2,8 +2,8 @@ const { Schema, model } = require("mongoose");
 
 const ProfileSchema = new Schema({
   user: {
-    type: Schema.Types.ObjectID,
-    ref: "Users",
+    type: Schema.Types.ObjectId,
+    ref: "users",
   },
   company: {
     type: String,
@@ -112,9 +112,9 @@ const ProfileSchema = new Schema({
   },
 });
 
-ProfileSchema.pre("save",  function (next) {
-   this.populate("user")
+ProfileSchema.pre("save", function (next) {
+  this.populate("user");
   next();
 });
 
-module.exports = model("Profiles", ProfileSchema);
+module.exports = model("profiles", ProfileSchema);
