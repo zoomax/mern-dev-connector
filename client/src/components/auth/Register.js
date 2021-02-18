@@ -1,7 +1,11 @@
 import React, { Fragment, useState } from "react";
-import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import { Link, Redirect } from "react-router-dom";
+import { setAlert } from "../../store/actions/alert";
+import { register } from "../../store/actions/auth";
+import { connect } from "react-redux";
 
-export const Register = () => {
+const Register = ({ setAlert, register, isAuthenticated }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,14 +20,16 @@ export const Register = () => {
   };
   const onSubmit = (e) => {
     e.preventDefault();
-    if (formData.password === formData.confirmPassword) {
-      console.log(formData);
+    console.log(formData);
+    if (formData.password != formData.confirmPassword) {
+      setAlert("passwords are not the same", "danger");
     } else {
-      console.log("passwords are not the same");
-      console.log("paasword : ", formData.password);
-      console.log("confirmPassword : ", formData.confirmPassword);
+      register(formData);
     }
   };
+  if (isAuthenticated) {
+    return <Redirect to="/dashboard" />;
+  }
   return (
     <Fragment>
       <h1 className="large text-primary">Sign Up</h1>
@@ -44,7 +50,7 @@ export const Register = () => {
             }}
             placeholder="Name"
             name="name"
-            required
+            // required
           />
         </div>
         <div className="form-group">
@@ -55,6 +61,7 @@ export const Register = () => {
               onChange(e);
             }}
             name="email"
+            autoComplete="username"
           />
           <small className="form-text">
             This site uses Gravatar so if you want a profile image, use a
@@ -66,10 +73,11 @@ export const Register = () => {
             type="password"
             placeholder="Password"
             name="password"
-            minLength="6"
+            // minLength="6"
             onChange={(e) => {
               onChange(e);
             }}
+            autoComplete="new-password"
           />
         </div>
         <div className="form-group">
@@ -77,17 +85,38 @@ export const Register = () => {
             type="password"
             placeholder="Confirm Password"
             name="confirmPassword"
-            minLength="6"
+            // minLength="6"
             onChange={(e) => {
               onChange(e);
             }}
+            autoComplete="new-password"
           />
         </div>
         <input type="submit" className="btn btn-primary" value="Register" />
       </form>
       <p className="my-1">
-        Already have an account? <Link to="/resiater">Sign in</Link>
+        Already have an account? <Link to="/login">Sign in</Link>
       </p>
     </Fragment>
   );
 };
+Register.propTypes = {
+  setAlert: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired,
+  isAuthenticated: PropTypes.bool.isRequired,
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setAlert: (message, alertType) => dispatch(setAlert(message, alertType)),
+    register: (body) => dispatch(register(body)),
+  };
+};
+
+const mapStateToProps = (state) => {
+  return {
+    isAuthenticated: state.authReducer.isAuthenticated,
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Register);

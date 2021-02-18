@@ -24,7 +24,7 @@ const registerUser = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        erorrs: errors.array(),
+        errors: errors.array(),
       });
     }
     const { password, confirmPassword, name, email } = req.body;
@@ -32,7 +32,7 @@ const registerUser = async (req, res) => {
     if (isEmail) {
       return res.status(400).json({
         success: false,
-        erorrMessage: "this email is already taken ",
+        errorMessage: "this email is already taken ",
       });
     }
     if (password === confirmPassword) {
@@ -59,13 +59,13 @@ const registerUser = async (req, res) => {
     } else {
       return res.status(400).json({
         success: false,
-        erorrMessage: "passwords didn't match",
+        errorMessage: "passwords didn't match",
       });
     }
   } catch (err) {
     return res.status(500).json({
       success: false,
-      erorrMessage: err.message,
+      errorMessage: err.message,
     });
   }
 };
@@ -77,7 +77,7 @@ const loginUser  = async function (req ,res , next ) {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        erorrs: errors.array(),
+        errors: errors.array(),
       });
     }
     const {email , password} = req.body ; 
@@ -85,7 +85,7 @@ const loginUser  = async function (req ,res , next ) {
     if(!user) { 
       res.status(404).json({
         success:false  , 
-        message :  "user is not exist" 
+        message : "user is not exist" 
       })
     }
     const isPassword = await bcrypt.compare(password ,user.password ) ; 
@@ -109,7 +109,7 @@ const loginUser  = async function (req ,res , next ) {
     }else { 
       res.status(401).json({
         success : false , 
-        message  : "email or password  are not correct"
+        message  : "email or password are not correct"
       })   }
 
   }catch (err) { 
