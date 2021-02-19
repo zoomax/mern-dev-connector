@@ -1,8 +1,9 @@
-import React  , {Fragment}from "react";
+import React, { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { logout } from "../../store/actions/auth";
 import { connect } from "react-redux";
-const Navbar = ({auth : {isAuthenticated , loading} , logout}) => {
+
+const Navbar = ({ auth: { isAuthenticated, loading }, logout }) => {
   const guest = (
     <ul>
       <li>
@@ -19,9 +20,15 @@ const Navbar = ({auth : {isAuthenticated , loading} , logout}) => {
   const auth = (
     <ul>
       <li>
+        <Link to="/dashboard">
+          <i className="fas fa-user"></i>{" "}
+          <span className="hide-sm">Dashboard </span>
+        </Link>
+      </li>
+      <li>
         <a href="#!" onClick={() => logout()}>
-          <i className ="fas fa-sign-out-alt"></i>
-          <span className ="hide-sm"></span>Logout 
+          <i className="fas fa-sign-out-alt"></i>{" "}
+          <span className="hide-sm">Logout </span>
         </a>
       </li>
     </ul>
@@ -33,15 +40,15 @@ const Navbar = ({auth : {isAuthenticated , loading} , logout}) => {
           <i className="fas fa-code"></i> DevConnector
         </Link>
       </h1>
-      {!loading && <Fragment> {isAuthenticated  ? auth : guest}</Fragment>}
+      {!loading && <Fragment> {isAuthenticated ? auth : guest}</Fragment>}
     </nav>
   );
 };
 
 const mapStateToProps = (state) => {
-  return  { 
-    auth : state.authReducer
-  }
+  return {
+    auth: state.authReducer,
+  };
 };
 
-export default connect(mapStateToProps ,{logout})(Navbar) ; 
+export default connect(mapStateToProps, { logout })(Navbar);
