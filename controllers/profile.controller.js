@@ -4,6 +4,7 @@ const config = require("config");
 const ProfileModel = require("../models/profile.model");
 const UserModel = require("../models/user.model");
 const profileModel = require("../models/profile.model");
+const PostModel = require("../models/post.model");
 
 const getCurrentUserProfile = async function (req, res) {
   const { user } = req;
@@ -157,6 +158,7 @@ const deleteUserProfile = async function (req, res) {
     const profile = await ProfileModel.findOneAndDelete({ user: id });
     const user = await UserModel.findOneAndDelete({ _id: id });
     if (user && profile) {
+      await PostModel.deleteMany({ user: id });
       await profile.remove();
       await user.remove();
       return res.status(202).json({
@@ -212,6 +214,12 @@ const addProfileExperience = async function (req, res) {
           message: "profile is  not exist",
         });
       }
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "bad request",
+        errors: errors.array(),
+      });
     }
   } catch (error) {
     res.status(500).json({
@@ -234,6 +242,7 @@ const deleteProfileExperience = async function (req, res) {
         return res.status(202).json({
           success: true,
           message: "experience is deleted successfully",
+          profile,
         });
       }
       return res.status(404).json({
@@ -352,17 +361,16 @@ const getProfileGithubRepos = async function (req, res) {
       if (error) {
         console.log(error);
       }
-      if (response.statusCode !== 200) { 
+      if (response.statusCode !== 200) {
         return res.status(400).json({
-           success : false , 
-           message  :  "username not found" , 
-
-        }) 
+          success: false,
+          message: "username not found",
+        });
       }
       return res.status(200).json({
-        success : true , 
-        repos  : JSON.parse(body)
-      })
+        success: true,
+        repos: JSON.parse(body),
+      });
     });
   } catch (error) {
     return res.status(500).json({
@@ -383,5 +391,5 @@ module.exports = {
   deleteProfileExperience,
   addProfileEducation,
   deleteProfileEducation,
-  getProfileGithubRepos
+  getProfileGithubRepos,
 };

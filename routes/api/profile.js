@@ -22,7 +22,12 @@ router.get("/me", auth, getCurrentUserProfile);
 //@route api/profiles/
 //@desc  post  create or update user profile
 //@access private
-router.post("/", auth, createOrUpdateProfile);
+router.post("/", auth,[
+  check("skills", "skills is required").not().isEmpty() , 
+  check("status", "status is required").not().isEmpty() , 
+  check("company", "company required").not().isEmpty() , 
+  check("location" , "location is required")
+] , createOrUpdateProfile);
 
 //@route api/profiles/
 //@desc  get profiles

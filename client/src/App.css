@@ -287,12 +287,21 @@ button {
 .form .social-input i.fa-linkedin {
   color: #0077b5;
 }
-
-.table th,
+.table { 
+  width : 100% ; 
+}
+.table th { 
+  padding: 1rem;
+  text-align : center ; 
+}
 .table td {
   padding: 1rem;
   text-align: left;
 }
+.table td:last-child {
+  text-align: center; 
+ }
+
 
 .table th {
   background: var(--light-color);
