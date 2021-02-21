@@ -26,7 +26,8 @@ router.post("/", auth,[
   check("skills", "skills is required").not().isEmpty() , 
   check("status", "status is required").not().isEmpty() , 
   check("company", "company required").not().isEmpty() , 
-  check("location" , "location is required")
+  check("location" , "location is required").not().isEmpty() , 
+  check("bio" , "bio is required").not().isEmpty() , 
 ] , createOrUpdateProfile);
 
 //@route api/profiles/

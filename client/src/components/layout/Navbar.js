@@ -7,7 +7,7 @@ const Navbar = ({ auth: { isAuthenticated, loading }, logout }) => {
   const guest = (
     <ul>
       <li>
-        <a herf="#!">Developers</a>
+      <Link to="/profiles">Develppers</Link>
       </li>
       <li>
         <Link to="/register">Register</Link>
@@ -19,6 +19,9 @@ const Navbar = ({ auth: { isAuthenticated, loading }, logout }) => {
   );
   const auth = (
     <ul>
+       <li>
+      <Link to="/profiles">Develppers</Link>
+      </li>
       <li>
         <Link to="/dashboard">
           <i className="fas fa-user"></i>{" "}

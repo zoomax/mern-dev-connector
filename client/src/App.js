@@ -11,10 +11,13 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import Alerts from "./components/layout/Alerts";
 import Dashboard from "./components/dashboard/dashboard";
-import CreateProfile from "./components/profile-forms/CreateProfile"
-import AddExperience from "./components/profile-forms/AddExperience" ; 
-import PrivateRoute from "./components/dashboard/routing/PrivateRoute" ; 
+import CreateProfile from "./components/profile-forms/CreateProfile";
+import AddExperience from "./components/profile-forms/AddExperience";
+import PrivateRoute from "./components/dashboard/routing/PrivateRoute";
 import AddEducation from "./components/profile-forms/AddEducation";
+import Profiles from "./components/profiles/Profiles";
+import Profile from "./components/profile/Profile" ; 
+
 
 function App() {
   const token = localStorage.getItem("token");
@@ -23,7 +26,7 @@ function App() {
   }
   useEffect(() => {
     store.dispatch(loadUser());
-  }, []);
+  }, [loadUser]);
   return (
     <Provider store={store}>
       <Fragment>
@@ -35,12 +38,29 @@ function App() {
             <Switch>
               <Route exact component={Register} path="/register" />
               <Route exact component={Login} path="/login" />
+              <Route exact component={Profiles} path="/profiles" />
+              <Route exact component={Profile} path="/profiles/:id" />
               <PrivateRoute exact component={Dashboard} path="/dashboard" />
-              <PrivateRoute exact component={CreateProfile} path="/create-profile" />
-              <PrivateRoute exact component={CreateProfile} path="/edit-profile" />
-              <PrivateRoute exact component={AddExperience} path="/add-experience" />
-              <PrivateRoute exact component={AddEducation} path="/add-education" />
-
+              <PrivateRoute
+                exact
+                component={CreateProfile}
+                path="/create-profile"
+              />
+              <PrivateRoute
+                exact
+                component={CreateProfile}
+                path="/edit-profile"
+              />
+              <PrivateRoute
+                exact
+                component={AddExperience}
+                path="/add-experience"
+              />
+              <PrivateRoute
+                exact
+                component={AddEducation}
+                path="/add-education"
+              />
             </Switch>
           </div>
         </Router>

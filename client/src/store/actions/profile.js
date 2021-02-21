@@ -1,8 +1,17 @@
 import axios from "axios";
 import { setAuthToken } from "../../utils/setAuthToken";
 import { setAlert } from "./alert";
-import { GET_PROFILE, PROFILE_ERROR, UPDATE_PROFILE  , ACCOUNT_DELETED , CLEAR_PROFILE} from "./types";
+import {
+  GET_PROFILE,
+  PROFILE_ERROR,
+  UPDATE_PROFILE,
+  ACCOUNT_DELETED,
+  CLEAR_PROFILE,
+  GET_PROFILES,
+  GET_REPOS,
+} from "./types";
 
+// get current  user profile
 export const getCurrentProfile = () => async (dispatch) => {
   setAuthToken(localStorage.getItem("token"));
   try {
@@ -23,6 +32,91 @@ export const getCurrentProfile = () => async (dispatch) => {
   }
 };
 
+// get profiles
+export const getProfiles = () => async (dispatch) => {
+  dispatch({ type: CLEAR_PROFILE });
+  try {
+    const config = {
+      headers: {
+        "Content-Type": "Application/json",
+      },
+    };
+    const profiles = await axios.get(
+      "http://localhost:5000/api/profiles",
+      config
+    );
+    console.log(profiles);
+    dispatch({
+      type: GET_PROFILES,
+      payload: profiles.data.profiles,
+    });
+  } catch (error) {
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: {
+        msg: error.response.statusText,
+        status: error.response.status,
+      },
+    });
+  }
+};
+
+// get profile by id
+export const getProfileById = (id) => async (dispatch) => {
+  try {
+    const config = {
+      headers: {
+        "Content-Type": "Application/json",
+      },
+    };
+    const profile = await axios.get(
+      `http://localhost:5000/api/profiles/${id}`,
+      config
+    );
+
+    dispatch({
+      type: GET_PROFILE,
+      payload: profile.data,
+    });
+  } catch (error) {
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: {
+        msg: error.response.statusText,
+        status: error.response.status,
+      },
+    });
+  }
+};
+
+// get profile repos
+export const getGithubRepos = (username) => async (dispatch) => {
+  try {
+    const config = {
+      headers: {
+        "Content-Type": "Application/json",
+      },
+    };
+    const repos = await axios.get(
+      `http://localhost:5000/api/profiles/github/${username}`,
+      config
+    );
+    dispatch({
+      type: GET_REPOS,
+      payload: repos.data,
+    });
+  } catch (error) {
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: {
+        msg: error.response.statusText,
+        status: error.response.status,
+      },
+    });
+  }
+};
+
+// create / update user profile
 export const createOrUpdateProfile = (formData, history, edit) => async (
   dispatch
 ) => {
@@ -53,6 +147,7 @@ export const createOrUpdateProfile = (formData, history, edit) => async (
       history.push("/dashboard");
     }
   } catch (err) {
+    console.log(err);
     const errors = err.response.data.errors;
     if (errors) {
       errors.forEach((error) => {
@@ -71,6 +166,7 @@ export const createOrUpdateProfile = (formData, history, edit) => async (
   }
 };
 
+// add profile experience
 export const addProfileExperience = (formData, history) => async (dispatch) => {
   setAuthToken(localStorage.getItem("token"));
   const config = {
@@ -108,6 +204,8 @@ export const addProfileExperience = (formData, history) => async (dispatch) => {
     });
   }
 };
+
+// add profile education
 export const addProfileEducation = (formData, history) => async (dispatch) => {
   setAuthToken(localStorage.getItem("token"));
   const config = {
@@ -146,6 +244,7 @@ export const addProfileEducation = (formData, history) => async (dispatch) => {
   }
 };
 
+// delete profile education
 export const deleteProfileEducation = (id) => async (dispatch) => {
   setAuthToken(localStorage.getItem("token"));
   const config = {
@@ -173,6 +272,8 @@ export const deleteProfileEducation = (id) => async (dispatch) => {
     });
   }
 };
+
+// delete profile experience
 export const deleteProfileExperience = (id) => async (dispatch) => {
   setAuthToken(localStorage.getItem("token"));
   const config = {
@@ -201,32 +302,39 @@ export const deleteProfileExperience = (id) => async (dispatch) => {
   }
 };
 
- export const deleteAccount  = () => async dispatch => { 
+// delete current user account
+export const deleteAccount = () => async (dispatch) => {
   setAuthToken(localStorage.getItem("token"));
   const config = {
     headers: {
       "Content-Type": "Application/json",
     },
   };
-  try {
-    const result = await axios.delete(
-      `http://localhost:5000/api/profiles/me/`,
-      config
-    );
-    dispatch({
-      type: CLEAR_PROFILE,
-    });
-    dispatch({
-      type: ACCOUNT_DELETED,
-    });
-    dispatch(setAlert("Experience deleted successfully"));
-  } catch (err) {
-    dispatch({
-      type: PROFILE_ERROR,
-      payload: {
-        msg: err.response.statusText,
-        status: err.response.status,
-      },
-    });
+  if (
+    window.confirm(
+      "your account is about to be deleted premanatly, Are You Sure.... ? "
+    )
+  ) {
+    try {
+      const result = await axios.delete(
+        `http://localhost:5000/api/profiles/me/`,
+        config
+      );
+      dispatch({
+        type: CLEAR_PROFILE,
+      });
+      dispatch({
+        type: ACCOUNT_DELETED,
+      });
+      dispatch(setAlert("Experience deleted successfully"));
+    } catch (err) {
+      dispatch({
+        type: PROFILE_ERROR,
+        payload: {
+          msg: err.response.statusText,
+          status: err.response.status,
+        },
+      });
+    }
   }
-}
+};

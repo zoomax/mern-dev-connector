@@ -10,10 +10,9 @@ import PropTypes from "prop-types";
 const CreateProfile = ({
   profile: { profile, loading },
   createOrUpdateProfile,
-  getCurrentProfile , 
+  getCurrentProfile,
   history,
 }) => {
- 
   const getProfileValues = (profile) => {
     if (profile) {
       const {
@@ -24,25 +23,45 @@ const CreateProfile = ({
         githubusername,
         website,
         status,
-        social: { facebook, twitter, instagram, linkedin, youtube },
+        social,
       } = profile;
-      return {
-        company: company || "",
-        website: website || "",
-        location: location || "",
-        status: status || "",
-        skills:
-          skills.reduce((acc, skill) => {
-            return (acc += "," + skill);
-          }) || "",
-        githubusername: githubusername || "",
-        bio: bio || "",
-        twitter: twitter || "",
-        facebook: facebook || "",
-        linkedin: linkedin || "",
-        instagram: instagram || "",
-        youtube: youtube || "",
-      };
+      if (social) {
+        return {
+          company: company || "",
+          website: website || "",
+          location: location || "",
+          status: status || "",
+          skills:
+            skills.reduce((acc, skill) => {
+              return (acc += "," + skill);
+            }) || "",
+          githubusername: githubusername || "",
+          bio: bio || "",
+          twitter: social.twitter || "",
+          facebook: social.facebook || "",
+          linkedin: social.linkedin || "",
+          instagram: social.instagram || "",
+          youtube: social.youtube || "",
+        };
+      } else {
+        return {
+          company: company || "",
+          website: website || "",
+          location: location || "",
+          status: status || "",
+          skills:
+            skills.reduce((acc, skill) => {
+              return (acc += "," + skill);
+            }) || "",
+          githubusername: githubusername || "",
+          bio: bio || "",
+          twitter: "",
+          facebook: "",
+          linkedin: "",
+          instagram: "",
+          youtube: "",
+        };
+      }
     }
     return {
       company: "",
@@ -65,7 +84,7 @@ const CreateProfile = ({
   const [showSocial, setShowSocial] = useState(false);
   useEffect(() => {
     getCurrentProfile();
-    setFormData({...getProfileValues(profile)})
+    setFormData({ ...getProfileValues(profile) });
   }, [loading]);
   const {
     company,
