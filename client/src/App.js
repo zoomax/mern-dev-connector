@@ -17,6 +17,7 @@ import PrivateRoute from "./components/dashboard/routing/PrivateRoute";
 import AddEducation from "./components/profile-forms/AddEducation";
 import Profiles from "./components/profiles/Profiles";
 import Profile from "./components/profile/Profile" ; 
+import Post from "./components/post/Post" ; 
 
 
 function App() {
@@ -60,6 +61,11 @@ function App() {
                 exact
                 component={AddEducation}
                 path="/add-education"
+              />
+              <PrivateRoute
+                exact
+                component={Post}
+                path="/posts"
               />
             </Switch>
           </div>
