@@ -61,6 +61,28 @@ const getPosts = async function (req, res) {
     });
   }
 };
+const getPost = async function (req, res) {
+  const id = req.params.id ; 
+  try {
+    const post = await PostModel.findById(id);
+    if (post) {
+      return res.status(200).json({
+        success: true,
+        post,
+      });
+    }
+    return res.status(404).json({
+      success: true,
+      message: "post not found",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "internal server error",
+      errors: error.message,
+    });
+  }
+};
 const addAndDeletePostLike = async function (req, res) {
   try {
     const user = req.user.id;
@@ -78,7 +100,7 @@ const addAndDeletePostLike = async function (req, res) {
       await post.save();
       return res.status(203).json({
         success: true,
-        post,
+        likes  : post.likes,
       });
     } else {
       return res.status(400).json({
@@ -222,4 +244,5 @@ module.exports = {
   addPostComment,
   deletePostComment , 
   deletePost , 
+  getPost 
 };

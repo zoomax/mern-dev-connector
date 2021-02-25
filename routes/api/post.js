@@ -9,6 +9,7 @@ const {
   addPostComment,
   deletePostComment,
   deletePost,
+  getPost
 } = require("../../controllers/post.controller");
 
 //@route api/posts
@@ -25,6 +26,11 @@ router.post(
 //@desc  GET  get posts
 //@access  public
 router.get("/", getPosts);
+
+//@route api/post/:id
+//@desc  GET  get posts
+//@access  public
+router.get("/:id", getPost);
 
 //@route api/posts/:id
 //@desc  PUT like/dislike post

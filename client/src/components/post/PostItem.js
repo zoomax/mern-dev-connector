@@ -1,55 +1,86 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
-import Moment from "react-moment"
-
-const PostItem = ({post : {avatar,likes,comments , date  ,user , name , text} }) => {
-    return (
+import React, { Fragment } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import Moment from "react-moment";
+import { like_dislike_Post, deletePost } from "../../store/actions/post";
+const initial = {
+  _id: "",
+  avatar: "",
+  likes: [],
+  comments: [],
+  date: "",
+  user: "",
+  name: "",
+  text: "",
+};
+const PostItem = ({ post = initial, like_dislike_Post, deletePost, auth }) => {
+  const { _id, avatar, likes, comments, date, user, name, text } = post;
+  return (
+    <Fragment>
+      {post && (
         <div className="post bg-white p-1 my-1">
           <div>
             <Link to={`/profiles/${user}`}>
-              <img
-                className="round-img"
-                src={avatar}
-                alt=""
-              />
+              <img className="round-img" src={avatar} alt="" />
               <h4>{name}</h4>
             </Link>
           </div>
           <div>
-            <p className="my-1">
-             {text}
+            <p className="my-1">{text}</p>
+            <p className="post-date">
+              Posted on <Moment format="YYYY/MM/DD" date={date} />
             </p>
-            <p className="post-date">Posted on <Moment format="YYYY/MM/DD" date = {date} /></p>
-            <button type="button" className="btn btn-light">
+            <button
+              onClick={() => like_dislike_Post(_id)}
+              type="button"
+              className="btn btn-light"
+            >
               <i className="fas fa-thumbs-up"></i>
               <span>{likes.length}</span>
             </button>
-            <button type="button" className="btn btn-light">
+            {/* <button onClick={()=> likePost()} type="button" className="btn btn-light">
               <i className="fas fa-thumbs-down"></i>
-            </button>
-            <a href="post.html" className="btn btn-primary">
-              Discussion <span className="comment-count">{comments.length}</span>
-            </a>
-            <button type="button" className="btn btn-danger">
-              <i className="fas fa-times"></i>
-            </button>
+            </button> */}
+            <Link to ={`/posts/${_id}`} className="btn btn-primary">
+              Discussion{" "}
+              <span className="comment-count">{comments.length}</span>
+            </Link>
+            {auth.isAuthenticated && auth.user._id == post.user && (
+              <button
+                onClick={() => {
+                  deletePost(_id);
+                }}
+                type="button"
+                className="btn btn-danger"
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            )}
           </div>
         </div>
-    )
-}
+      )}
+    </Fragment>
+  );
+};
 
 PostItem.propTypes = {
-    post : PropTypes.object.isRequired,
-}
+  post: PropTypes.object.isRequired,
+  like_dislike_Post: PropTypes.func.isRequired,
+  deletePost: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+};
 
 const mapStateToProps = (state) => ({
-    
-})
+  auth: state.authReducer,
+});
 
 const mapDispatchToProps = {
-    
-}
+  like_dislike_Post,
+  deletePost,
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(PostItem)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(React.memo(PostItem));

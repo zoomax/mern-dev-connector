@@ -2,13 +2,13 @@ import React, { Fragment, useEffect } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { getPosts } from "../../store/actions/post";
-import PostItem from "./PostItem" ; 
+import PostItem from "./PostItem";
+import PostForm from "./PostForm" ; 
 
 export const Post = ({ post: { posts, loading }, getPosts }) => {
   useEffect(() => {
     getPosts();
-    console.log(posts);
-  }, [getPosts, loading]);
+  }, [getPosts]);
   return (
     <div>
       {/* {!loading && <h1 className = "large text-primary">posts</h1> } */}
@@ -17,26 +17,15 @@ export const Post = ({ post: { posts, loading }, getPosts }) => {
         <i className="fas fa-user"></i> Welcome to the community!
       </p>
 
-      <div className="post-form">
-        <div className="bg-primary p">
-          <h3>Say Something...</h3>
-        </div>
-        <form className="form my-1">
-          <textarea
-            name="text"
-            cols="30"
-            rows="5"
-            placeholder="Create a post"
-            required
-          ></textarea>
-          <input type="submit" className="btn btn-dark my-1" value="Submit" />
-        </form>
-      </div>
-
+      <PostForm />
       <div className="posts">
-        {posts.length > 0 && <Fragment>
-            {posts.map(post=> <PostItem post = {post} key = {post._id}/>)}
-            </Fragment>}
+        {posts.length > 0 && (
+          <Fragment>
+            {posts.map((post, index) => (
+              <PostItem post={post} key={index} />
+            ))}
+          </Fragment>
+        )}
       </div>
     </div>
   );
