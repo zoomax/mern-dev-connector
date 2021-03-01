@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const UserModel = require("../models/user.model");
 const PostModel = require("../models/post.model");
+const response = require("./response");
 const createPost = async function (req, res) {
   try {
     const errors = validationResult(req);
@@ -18,25 +19,30 @@ const createPost = async function (req, res) {
         const post = new PostModel(postBody);
         await post.save();
         return res.status(201).json({
+          ...response,
           success: true,
-          post,
+          data: [post],
+          status: "Created",
+          statusCode: 201,
         });
       }
       return res.status(404).json({
-        success: false,
-        message: "please signup ",
+        ...response,
+        errors: ["please signup"],
+        status: "Not Found",
+        statusCode: 404,
       });
     }
     return res.status(400).json({
-      success: false,
-      message: "bad requeset",
+      ...response,
       errors: errors.array(),
     });
-  } catch (error) {
+  } catch (err) {
     return res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      status: "Server Error",
+      statusCode: 500,
+      errors: [err.message],
     });
   }
 };
@@ -45,41 +51,53 @@ const getPosts = async function (req, res) {
     const posts = await PostModel.find();
     if (posts.length > 0) {
       return res.status(200).json({
+        ...response,
         success: true,
-        posts,
+        data: posts,
+        status: "Created",
+        statusCode: 200,
       });
     }
     return res.status(404).json({
-      success: true,
-      message: "no posta to be viewed",
+      ...response,
+      errors: ["no posts to be viewed"],
+      status: "Not Found",
+      statusCode: 404,
     });
-  } catch (error) {
+  } catch (err) {
     return res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      status: "Server Error",
+      statusCode: 500,
+      errors: [err.message],
     });
   }
 };
 const getPost = async function (req, res) {
-  const id = req.params.id ; 
+  const id = req.params.id;
   try {
     const post = await PostModel.findById(id);
     if (post) {
       return res.status(200).json({
+        ...response,
         success: true,
-        post,
+        data: [post],
+        status: "Created",
+        statusCode: 200,
       });
     }
     return res.status(404).json({
-      success: true,
-      message: "post not found",
+      ...response,
+      errors: ["post not found"],
+      status: "Not Found",
+      statusCode: 404,
     });
   } catch (error) {
     return res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      status: "Server Error",
+      statusCode: 500,
+      errors: [err.message],
     });
   }
 };
@@ -99,20 +117,24 @@ const addAndDeletePostLike = async function (req, res) {
       }
       await post.save();
       return res.status(203).json({
+        ...response,
         success: true,
-        likes  : post.likes,
+        data: post.likes,
+        status: "Updated",
+        statusCode: 203,
       });
     } else {
       return res.status(400).json({
-        success: false,
-        error: "user or post are not exist",
+        ...response,
+        errors: ["user or post are not exist"],
       });
     }
   } catch (error) {
     return res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      status: "Server Error",
+      statusCode: 500,
+      errors: [err.message],
     });
   }
 };
@@ -135,25 +157,28 @@ const addPostComment = async function (req, res) {
         post.comments.push(comment);
         await post.save();
         return res.status(203).json({
+          ...response,
           success: true,
-          post,
+          data: [post],
+          status: "Updated",
+          statusCode: 203,
         });
       }
       return res.status(400).json({
-        success: false,
-        error: "user or post are not exist",
+        ...response,
+        errors: ["user or post are not exist"],
       });
     }
     return res.status(400).json({
-      success: false,
-      message: "bad request",
+      ...response,
       errors: errors.array(),
     });
   } catch (error) {
     return res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      status: "Server Error",
+      statusCode: 500,
+      errors: [err.message],
     });
   }
 };
@@ -177,25 +202,34 @@ const deletePostComment = async function (req, res) {
           post.comments.splice(commentIndex, 1);
           await post.save();
           return res.status(203).json({
+            ...response,
             success: true,
-            message: "comment deleted successfully",
-            post,
+            data: [post],
+            status: "Updated",
+            statusCode: 203,
           });
         }
         return res.status(403).json({
-          success: false,
-          message: "user is not authorized to delete this comment",
+          ...response,
+          status: "Unauthorized",
+          statusCode: 403,
+          errors: ["user is not authorized to delete this comment"],
         });
       } else {
         return res.status(404).json({
-          success: false,
-          message: "comment is not exist",
+          ...response,
+          errors: ["comment is not exist"],
+          status: "Not Found",
+          statusCode: 404,
         });
       }
     }
     return res.status(404).json({
-      success: false,
-      message: "post is not found or user is not exist",
+      
+      ...response,
+      errors: [ "post is not found or user is not exist"],
+      status: "Not Found",
+      statusCode: 404,
     });
   } catch (error) {
     return res.status(500).json({
@@ -206,43 +240,44 @@ const deletePostComment = async function (req, res) {
   }
 };
 
-const deletePost = async function (req , res) { 
-try  { 
-const post  = await PostModel.findById(req.params.id) ; 
-const user = await  UserModel.findById(req.user.id)  ;
-if(post && user)  {
-  if(post.user.toString() === user._id.toString()) { 
-  await PostModel.findByIdAndDelete(post._id) ; 
-  return res.status(202).json({
-    success: true , 
-    message : "post deleted successfully" , 
-    post 
-  })
-  }else { 
-    return res.status(403).json({
-      success: true , 
-      message : "user is not authorized to delete this post" ,
-    })
+const deletePost = async function (req, res) {
+  try {
+    const post = await PostModel.findById(req.params.id);
+    const user = await UserModel.findById(req.user.id);
+    if (post && user) {
+      if (post.user.toString() === user._id.toString()) {
+        await PostModel.findByIdAndDelete(post._id);
+        return res.status(202).json({
+          success: true,
+          message: "post deleted successfully",
+          post,
+        });
+      } else {
+        return res.status(403).json({
+          success: true,
+          message: "user is not authorized to delete this post",
+        });
+      }
+    }
+    return res.status(404).json({
+      success: false,
+      message: "post or user are not exist",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      ...response,
+      status: "Server Error",
+      statusCode: 500,
+      errors: [err.message],
+    });
   }
-}
-return res.status(404).json({
-  success: false , 
-  message : "post or user are not exist" , 
-})
-}catch(error) { 
-  return res.status(500).json( { 
-    success  : false , 
-    message : "internal server error" , 
-    errors  : error.message , 
-  })
-}
-}
+};
 module.exports = {
   createPost,
   getPosts,
   addAndDeletePostLike,
   addPostComment,
-  deletePostComment , 
-  deletePost , 
-  getPost 
+  deletePostComment,
+  deletePost,
+  getPost,
 };

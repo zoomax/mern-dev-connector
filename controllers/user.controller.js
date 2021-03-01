@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const gravatar = require("gravatar");
 const jwt = require("jsonwebtoken");
 const config = require("config");
+const response = require("./response");
 
 const isUserEmail = async (email) => {
   try {
@@ -23,7 +24,7 @@ const registerUser = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
-        success: false,
+        ...response,
         errors: errors.array(),
       });
     }
@@ -31,8 +32,8 @@ const registerUser = async (req, res) => {
     const isEmail = await isUserEmail(email);
     if (isEmail) {
       return res.status(400).json({
-        success: false,
-        errorMessage: "this email is already taken ",
+        ...response,
+        errors: ["this email is already taken"],
       });
     }
     if (password === confirmPassword) {
@@ -53,71 +54,85 @@ const registerUser = async (req, res) => {
       await newUser.save();
 
       res.status(201).json({
+        ...response,
         success: true,
-        user: newUser,
+        data: [newUser],
+        status: "Created",
+        statusCode: 201,
       });
     } else {
       return res.status(400).json({
-        success: false,
-        errorMessage: "passwords didn't match",
+        ...response,
+        errors: ["Passwords didn't match"],
       });
     }
   } catch (err) {
     return res.status(500).json({
-      success: false,
-      errorMessage: err.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
 
-
-const loginUser  = async function (req ,res , next ) { 
-  try  { 
+const loginUser = async function (req, res, next) {
+  try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
-        success: false,
+        ...response,
         errors: errors.array(),
       });
     }
-    const {email , password} = req.body ; 
-    const user = await userModel.findOne({email}); 
-    if(!user) { 
+    const { email, password } = req.body;
+    const user = await userModel.findOne({ email });
+    if (!user) {
       res.status(404).json({
-        success:false  , 
-        message : "user is not exist" 
-      })
+        ...response,
+        errors: ["this email is already taken"],
+        status: "Not Found",
+        statusCode: 404,
+      });
     }
-    const isPassword = await bcrypt.compare(password ,user.password ) ; 
-    if(isPassword) { 
-      const payload  =  {
-        user :  { 
-          id : user.id 
-        } 
-
-      }
-      const newUser  = user.toObject(); 
-      delete newUser.tokens   ;
-      delete newUser.password ; 
-      const token =  jwt.sign(payload  , config.get("jwtSecret") , {expiresIn : 10800}) ; 
-      user.tokens.push(token)  ; 
-      res.status(200).json ({
-        success : true , 
-        user : {...newUser , token}
-      })
-      
-    }else { 
+    const isPassword = await bcrypt.compare(password, user.password);
+    if (isPassword) {
+      const payload = {
+        user: {
+          id: user.id,
+        },
+      };
+      const newUser = user.toObject();
+      delete newUser.tokens;
+      delete newUser.password;
+      const token = jwt.sign(payload, config.get("jwtSecret"), {
+        expiresIn: 10800,
+      });
+      user.tokens.push(token);
+      res.status(200).json({
+        ...response,
+        success: true,
+        data: [{ ...newUser, token }],
+        status: "OK",
+        statusCode: 200,
+      });
+    } else {
       res.status(401).json({
-        success : false , 
-        message  : "email or password are not correct"
-      })   }
-
-  }catch (err) { 
+        ...response,
+        errors  : ["email or password are not correct"] , 
+        status: "Unauthorized",
+        statusCode: 401,
+      });
+    }
+  } catch (err) {
     res.status(500).json({
-      success : false , 
-      message  : err.message
-    })   }
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
+    });
   }
+};
 
 module.exports = {
   registerUser,

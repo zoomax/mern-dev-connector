@@ -5,6 +5,7 @@ const ProfileModel = require("../models/profile.model");
 const UserModel = require("../models/user.model");
 const profileModel = require("../models/profile.model");
 const PostModel = require("../models/post.model");
+const response = require("./response");
 
 const getCurrentUserProfile = async function (req, res) {
   const { user } = req;
@@ -14,20 +15,26 @@ const getCurrentUserProfile = async function (req, res) {
     }).populate("user", ["name", "avatar"]);
     if (profile) {
       return res.status(200).json({
+        ...response,
         success: true,
-        profile,
+        status: "OK",
+        statusCode: 200,
+        data: [profile],
       });
     } else {
       return res.status(404).json({
-        success: false,
-        message: "this user has no profile ",
+        ...response,
+        errors: ["this user has no profile"],
+        status: "Not Found",
+        statusCode: 404,
       });
     }
   } catch (err) {
     return res.status(500).json({
-      success: false,
-      message: "server error",
-      error: err.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
@@ -80,28 +87,35 @@ const createOrUpdateProfile = async function (req, res) {
           { new: true }
         );
         return res.status(203).json({
+          ...response,
           success: true,
-          profile,
+          status: "Updated",
+          statusCode: 203,
+          data: [profile],
         });
       } else {
         profile = new ProfileModel(profileBody);
         await profile.save();
         return res.status(201).json({
+          ...response,
           success: true,
-          profile,
+          status: "Created",
+          statusCode: 201,
+          data: [profile],
         });
       }
     } else {
       return res.status(400).json({
-        success: false,
+        ...response,
         errors: errors.array(),
       });
     }
   } catch (err) {
     return res.status(500).json({
-      success: false,
-      message: "server error",
-      errors: err.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
@@ -110,20 +124,26 @@ const getProfiles = async function (req, res) {
     const profiles = await ProfileModel.find().populate("user");
     if (profiles.length > 0) {
       return res.status(200).json({
+        ...response,
         success: true,
-        profiles,
+        status: "OK",
+        statusCode: 200,
+        data: profiles,
       });
     } else {
       return res.status(404).json({
-        success: true,
-        message: "there are no profiles to be fetched yet",
+        ...response,
+        errors: ["Data were not found"],
+        status: "Not Found",
+        statusCode: 404,
       });
     }
   } catch (err) {
     return res.status(500).json({
-      success: false,
-      message: "server error",
-      error: err.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
@@ -136,19 +156,25 @@ const getUserProfile = async function (req, res) {
     }).populate("user");
     if (profile) {
       return res.status(200).json({
+        ...response,
         success: true,
-        profile,
+        status: "OK",
+        statusCode: 200,
+        data: [profile],
       });
     }
     return res.status(404).json({
-      success: false,
-      message: "this user has no profile",
+      ...response,
+      errors: ["This user has no profile"],
+      status: "Not Found",
+      statusCode: 404,
     });
   } catch (error) {
     return res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
@@ -162,24 +188,25 @@ const deleteUserProfile = async function (req, res) {
       await profile.remove();
       await user.remove();
       return res.status(202).json({
+        ...response,
         success: true,
-        message: "both user and his profile were deleted successfully",
-        profile,
-        user,
+        status: "Deleted",
+        statusCode: 202,
       });
     } else {
       return res.status(404).json({
-        success: true,
-        message: "user or profile are not exist",
-        profile,
-        user,
+        ...response,
+        errors: ["user or profile are not exist"],
+        status: "Not Found",
+        statusCode: 404,
       });
     }
   } catch (error) {
     return res.status(500).json({
-      success: false,
-      message: "inetrnal server error",
-      errors: error.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
@@ -205,27 +232,32 @@ const addProfileExperience = async function (req, res) {
         profile.experience.unshift(newExp);
         await profile.save();
         res.status(203).json({
+          ...response,
           success: true,
-          profile,
+          status: "Updated",
+          statusCode: 203,
+          data: [profile],
         });
       } else {
         res.status(404).json({
-          success: false,
-          message: "profile is  not exist",
+          ...response,
+          errors: ["profile is not exist"],
+          status: "Not Found",
+          statusCode: 404,
         });
       }
     } else {
       return res.status(400).json({
-        success: false,
-        message: "bad request",
+        ...response,
         errors: errors.array(),
       });
     }
   } catch (error) {
     res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.massage,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
@@ -240,21 +272,26 @@ const deleteProfileExperience = async function (req, res) {
         profile.experience.splice(experience, 1);
         await profile.save();
         return res.status(202).json({
+          ...response,
           success: true,
-          message: "experience is deleted successfully",
-          profile,
+          status: "Deleted",
+          statusCode: 202,
+          data  : [profile]
         });
       }
       return res.status(404).json({
-        success: true,
-        message: "there is no such experience",
+        ...response,
+        errors: ["Experience is not exist"],
+        status: "Not Found",
+        statusCode: 404,
       });
     }
   } catch (error) {
     return res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
@@ -290,26 +327,31 @@ const addProfileEducation = async function (req, res) {
         profile.education.unshift(newEdu);
         await profile.save();
         res.status(203).json({
+          ...response,
           success: true,
-          profile,
+          status: "Updated",
+          statusCode: 203,
+          data: [profile],
         });
       } else {
         res.status(404).json({
-          success: false,
-          message: "profile is  not exist",
+          ...response,
+          errors: ["profile is not exist"],
+          status: "Not Found",
+          statusCode: 404,
         });
       }
     }
     return res.status(400).json({
-      success: false,
-      message: "bad request",
+      ...response,
       errors: errors.array(),
     });
   } catch (error) {
     return res.status(500).json({
-      // success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
@@ -326,21 +368,26 @@ const deleteProfileEducation = async function (req, res) {
         profile.education.splice(education, 1);
         await profile.save();
         return res.status(202).json({
+          ...response,
           success: true,
-          message: "education is deleted successfully",
-          profile,
+          status: "Deleted",
+          statusCode: 202,
+          data : [profile]
         });
       }
       return res.status(404).json({
-        success: true,
-        message: "there is no such education",
+        ...response,
+        errors: ["there is no such education"],
+        status: "Not Found",
+        statusCode: 404,
       });
     }
-  } catch (error) {
+  } catch (err) {
     return res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };
@@ -363,20 +410,26 @@ const getProfileGithubRepos = async function (req, res) {
       }
       if (response.statusCode !== 200) {
         return res.status(400).json({
-          success: false,
-          message: "username not found",
+          ...response,
+          errors: ["Github Username Not Found"],
+          status: "Not Found",
+          statusCode: 404,
         });
       }
       return res.status(200).json({
+        ...response,
         success: true,
-        repos: JSON.parse(body),
+        status: "OK",
+        statusCode: 200,
+        data: JSON.parse(body),
       });
     });
   } catch (error) {
     return res.status(500).json({
-      success: false,
-      message: "internal server error",
-      errors: error.message,
+      ...response,
+      errors: [err.message],
+      status: "Server Error",
+      statusCode: 500,
     });
   }
 };

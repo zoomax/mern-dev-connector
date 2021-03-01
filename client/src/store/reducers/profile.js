@@ -16,20 +16,21 @@ const initialState = {
 };
 
 export default function (state = initialState, { payload, type }) {
+  console.log(payload) ; 
   switch (type) {
     case GET_PROFILE:
     case UPDATE_PROFILE:
-      return { ...state, profile: payload.profile, loading: false };
+      return { ...state, profile: payload.data[0], loading: false };
     case PROFILE_ERROR:
       return {
         ...state,
-        error: payload,
+        error: payload[0],
         loading: false,
       };
     case GET_PROFILES:
       return {
         ...state,
-        profiles: payload,
+        profiles: payload.data,
         loading: false,
       };
 
@@ -41,7 +42,7 @@ export default function (state = initialState, { payload, type }) {
     case GET_REPOS:
       return {
         ...state,
-        repos: payload.repos,
+        repos: JSON.parse(payload.body),
       };
     default:
       return state;

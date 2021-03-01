@@ -18,35 +18,38 @@ const initialState = {
 export default function (state = initialState, { type, payload }) {
   switch (type) {
     case USER_LOADED:
+      console.log(payload , "auth reducer") ; 
       return {
         ...state,
         isAuthenticated: true,
         loading: false,
-        user: payload.user,
+        user: payload.data[0],
       };
     case REGISTER_SUCCEESS:
-      localStorage.setItem("token", payload.tokens[0]);
+      console.log(payload , "auth reducer") ; 
+      localStorage.setItem("token", payload[0].tokens[0]);
       return {
         ...state,
-        token: payload.tokens[0],
+        token: payload[0].token,
         isAuthenticated: true,
         loading: false,
-        user: payload,
+        user: payload[0],
       };
     case LOGIN_SUCCESS:
-      localStorage.setItem("token", payload.token);
+      localStorage.setItem("token", payload[0].token);
       return {
         ...state,
-        token: payload.token,
+        token: payload[0].token,
         isAuthenticated: true,
         loading: false,
-        user: payload,
+        user: payload[0],
       };
     case REGISTER_FAILURE:
     case AUTH_FAILURE:
     case LOGIN_FAILURE:
     case LOGOUT:
     case ACCOUNT_DELETED:
+      console.log(payload , "auth reducer") ; 
       localStorage.removeItem("token");
       return {
         ...state,

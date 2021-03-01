@@ -4,13 +4,9 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 export const ProfileItem = ({ profile }) => {
-  const {
-    user: { _id, avatar, name },
-    company,
-    skills,
-    status,
-    location,
-  } = profile;
+  console.log(profile);
+  const { company, skills, status, location, user : {_id , avatar ,name   } } = profile;
+  console.log(profile.user);
   return (
     <Fragment>
       <div className="profile bg-light">

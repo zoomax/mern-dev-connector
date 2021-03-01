@@ -1,4 +1,5 @@
 import axios from "axios";
+import { setAlert } from "./alert";
 import {
   GET_POSTS,
   POST_ERROR,
@@ -17,6 +18,7 @@ export const getPosts = () => async (dispatch) => {
       type: GET_POSTS,
       payload: posts.data,
     });
+    dispatch(setAlert("posts fetched successfully" , "green"))
   } catch (error) {
     dispatch({
       type: POST_ERROR,
@@ -34,6 +36,7 @@ export const getPost = (id) => async (dispatch) => {
       type: GET_POST,
       payload: post.data,
     });
+    dispatch(setAlert("post fetched successfully" , "green"))
   } catch (error) {
     dispatch({
       type: POST_ERROR,
@@ -50,7 +53,7 @@ export const like_dislike_Post = (id) => async (dispatch) => {
     const likes = await axios.put(`http://localhost:5000/api/posts/${id}`);
     dispatch({
       type: UPDATE_LIKE,
-      payload: { likes: likes.data.likes, id },
+      payload: { likes: likes.data.data, id },
     });
   } catch (error) {
     dispatch({
@@ -99,12 +102,13 @@ export const addPost = (formData) => async (dispatch) => {
       type: ADD_POST,
       payload: post.data,
     });
+    dispatch(setAlert("post created successfully" , "success"))
   } catch (error) {
     console.log(error);
     dispatch({
       type: POST_ERROR,
       payload: {
-        msg: error.response.statusText,
+        msg: error.response.data.statusText,
         status: error.response.status,
       },
     });
@@ -146,7 +150,7 @@ export const deleteComment = (id, commentId) => async (dispatch) => {
     );
     dispatch({
       type: DELETE_COMMENT,
-      payload: { comments: post.data.post.comments },
+      payload: { comments: post.data.data[0].comments },
     });
   } catch (error) {
     dispatch({

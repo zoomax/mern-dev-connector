@@ -23,27 +23,28 @@ export default function (state = initialState, { payload, type }) {
       return {
         ...state,
         loading: false,
-        posts: payload.posts,
+        posts: payload.data,
       };
     case GET_POST:
       return {
         ...state,
         loading: false,
-        post: payload.post,
+        post: payload.data[0],
       };
     case ADD_POST:
       return {
         ...state,
         loading: false,
-        posts: [...state.posts, payload.post],
+        posts: [...state.posts, payload.data[0]],
       };
     case ADD_COMMENT:
       return {
         ...state,
         loading: false,
-        post: payload.post,
+        post: payload.data[0],
       };
     case UPDATE_LIKE:
+      console.log(payload) ;
       return {
         ...state,
         loading: false,
