@@ -1,7 +1,7 @@
 {
-    "jwtSecret" : "thisismysecret" , 
-    "mongodbURI" : "mongodb://localhost:27017/dev-connector" , 
-    "githubClient" : "759b70d02c3f657baa550"   , 
-    "githubClientSecret" : "759b70d02c3f657baa55"
+    "jwtSecret": "thisismysecret",
+    "mongodbURI": "mongodb+srv://heroku-hero:eh5m7O47PRiH6s35@cluster0.tzdfl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+    "githubClient": "759b70d02c3f657baa550",
+    "githubClientSecret": "759b70d02c3f657baa55"
 
 }

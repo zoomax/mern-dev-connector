@@ -14,7 +14,7 @@ const connectDB = async () => {
     });
     console.log("DB Connected ....");
   } catch (err) {
-    console.log(err.message);
+    console.log(err.message , "from mongo db");
     // Exit process with failure ;
     process.exit(1);
   }

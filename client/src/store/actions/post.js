@@ -10,15 +10,15 @@ import {
   ADD_COMMENT,
   DELETE_COMMENT,
 } from "./types";
-
+import { apiUrl } from "../../helpers/index";
 export const getPosts = () => async (dispatch) => {
   try {
-    const posts = await axios.get("http://localhost:5000/api/posts");
+    const posts = await axios.get(`${apiUrl}/posts`);
     dispatch({
       type: GET_POSTS,
       payload: posts.data,
     });
-    dispatch(setAlert("posts fetched successfully" , "green"))
+    dispatch(setAlert("posts fetched successfully", "green"));
   } catch (error) {
     dispatch({
       type: POST_ERROR,
@@ -31,12 +31,12 @@ export const getPosts = () => async (dispatch) => {
 };
 export const getPost = (id) => async (dispatch) => {
   try {
-    const post = await axios.get(`http://localhost:5000/api/posts/${id}`);
+    const post = await axios.get(`${apiUrl}/posts/${id}`);
     dispatch({
       type: GET_POST,
       payload: post.data,
     });
-    dispatch(setAlert("post fetched successfully" , "green"))
+    dispatch(setAlert("post fetched successfully", "green"));
   } catch (error) {
     dispatch({
       type: POST_ERROR,
@@ -50,7 +50,7 @@ export const getPost = (id) => async (dispatch) => {
 
 export const like_dislike_Post = (id) => async (dispatch) => {
   try {
-    const likes = await axios.put(`http://localhost:5000/api/posts/${id}`);
+    const likes = await axios.put(`${apiUrl}/posts/${id}`);
     dispatch({
       type: UPDATE_LIKE,
       payload: { likes: likes.data.data, id },
@@ -67,7 +67,7 @@ export const like_dislike_Post = (id) => async (dispatch) => {
 };
 export const deletePost = (id) => async (dispatch) => {
   try {
-    const post = await axios.delete(`http://localhost:5000/api/posts/${id}`);
+    const post = await axios.delete(`${apiUrl}/posts/${id}`);
     console.log(id);
     console.log(post.data.post._id);
     dispatch({
@@ -92,17 +92,13 @@ export const addPost = (formData) => async (dispatch) => {
     },
   };
   try {
-    const post = await axios.post(
-      "http://localhost:5000/api/posts",
-      formData,
-      config
-    );
+    const post = await axios.post(`${apiUrl}/posts`, formData, config);
     console.log(post.data.post);
     dispatch({
       type: ADD_POST,
       payload: post.data,
     });
-    dispatch(setAlert("post created successfully" , "success"))
+    dispatch(setAlert("post created successfully", "success"));
   } catch (error) {
     console.log(error);
     dispatch({
@@ -123,9 +119,9 @@ export const addComment = (formData, id) => async (dispatch) => {
   };
   try {
     const post = await axios.put(
-      `http://localhost:5000/api/posts/${id}/comments`,
+      `${apiUrl}/posts/${id}/comments`,
       formData,
-      config
+      config,
     );
     console.log(post.data);
     dispatch({
@@ -145,9 +141,7 @@ export const addComment = (formData, id) => async (dispatch) => {
 };
 export const deleteComment = (id, commentId) => async (dispatch) => {
   try {
-    const post = await axios.put(
-      `http://localhost:5000/api/posts/${id}/comments/${commentId}`
-    );
+    const post = await axios.put(`${apiUrl}/posts/${id}/comments/${commentId}`);
     dispatch({
       type: DELETE_COMMENT,
       payload: { comments: post.data.data[0].comments },

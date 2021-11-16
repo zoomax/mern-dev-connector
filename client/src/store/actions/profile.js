@@ -10,12 +10,12 @@ import {
   GET_PROFILES,
   GET_REPOS,
 } from "./types";
-
+import { apiUrl } from "../../helpers/index";
 // get current  user profile
 export const getCurrentProfile = () => async (dispatch) => {
   setAuthToken(localStorage.getItem("token"));
   try {
-    const profile = await axios.get("http://localhost:5000/api/profiles/me");
+    const profile = await axios.get(`${apiUrl}/profiles/me`);
     console.log(profile);
     dispatch({
       type: GET_PROFILE,
@@ -41,10 +41,7 @@ export const getProfiles = () => async (dispatch) => {
         "Content-Type": "Application/json",
       },
     };
-    const profiles = await axios.get(
-      "http://localhost:5000/api/profiles",
-      config
-    );
+    const profiles = await axios.get(`${apiUrl}/profiles`, config);
     console.log(profiles.data.data);
     dispatch({
       type: GET_PROFILES,
@@ -67,10 +64,7 @@ export const getProfileById = (id) => async (dispatch) => {
         "Content-Type": "Application/json",
       },
     };
-    const profile = await axios.get(
-      `http://localhost:5000/api/profiles/${id}`,
-      config
-    );
+    const profile = await axios.get(`${apiUrl}/profiles/${id}`, config);
 
     dispatch({
       type: GET_PROFILE,
@@ -94,8 +88,8 @@ export const getGithubRepos = (username) => async (dispatch) => {
       },
     };
     const repos = await axios.get(
-      `http://localhost:5000/api/profiles/github/${username}`,
-      config
+      `${apiUrl}/profiles/github/${username}`,
+      config,
     );
     dispatch({
       type: GET_REPOS,
@@ -111,48 +105,49 @@ export const getGithubRepos = (username) => async (dispatch) => {
 };
 
 // create / update user profile
-export const createOrUpdateProfile = (formData, history, edit) => async (
-  dispatch
-) => {
-  setAuthToken(localStorage.getItem("token"));
-  const config = {
-    headers: {
-      "Content-Type": "Application/json",
-    },
-  };
-  try {
-    const result = await axios.post(
-      "http://localhost:5000/api/profiles/",
-      formData,
-      config
-    );
-    dispatch({
-      type: GET_PROFILE,
-      payload: result.data,
-    });
-    dispatch(
-      setAlert(
-        edit ? "profile updated successfully" : "profile created successfully",
-        "primary"
-      )
-    );
-
-    if (edit == false) {
-      history.push("/dashboard");
-    }
-  } catch (err) {
-    const errors = err.response ? err.response.data.errors : [err.message];
-    if (errors.length > 0 ) {
-      errors.forEach((error) => {
-        dispatch(setAlert(error, "danger"));
+export const createOrUpdateProfile =
+  (formData, history, edit) => async (dispatch) => {
+    setAuthToken(localStorage.getItem("token"));
+    const config = {
+      headers: {
+        "Content-Type": "Application/json",
+      },
+    };
+    try {
+      const result = await axios.post(`${apiUrl}/profiles`, formData, config);
+      dispatch({
+        type: GET_PROFILE,
+        payload: result.data,
       });
-    } 
-    dispatch({
-      type: PROFILE_ERROR,
-      payload: errors,
-    });
-  }
-};
+      dispatch(
+        setAlert(
+          edit
+            ? "profile updated successfully"
+            : "profile created successfully",
+          "primary",
+        ),
+      );
+
+      if (edit == false) {
+        history.push("/dashboard");
+      }
+    } catch (err) {
+      const errors = err.response ? err.response.data.errors : [err.message];
+      if (errors.length > 0) {
+        errors.forEach((error) => {
+          if (error.msg) {
+            dispatch(setAlert(error.msg, "danger"));
+          } else {
+            dispatch(setAlert(error, "danger"));
+          }
+        });
+      }
+      dispatch({
+        type: PROFILE_ERROR,
+        payload: errors,
+      });
+    }
+  };
 
 // add profile experience
 export const addProfileExperience = (formData, history) => async (dispatch) => {
@@ -164,9 +159,9 @@ export const addProfileExperience = (formData, history) => async (dispatch) => {
   };
   try {
     const result = await axios.put(
-      "http://localhost:5000/api/profiles/me/experiences",
+      `${apiUrl}/profiles/me/experiences`,
       formData,
-      config
+      config,
     );
     dispatch({
       type: UPDATE_PROFILE,
@@ -201,9 +196,9 @@ export const addProfileEducation = (formData, history) => async (dispatch) => {
   };
   try {
     const result = await axios.put(
-      "http://localhost:5000/api/profiles/me/educations",
+      `${apiUrl}/profiles/me/educations`,
       formData,
-      config
+      config,
     );
     dispatch({
       type: UPDATE_PROFILE,
@@ -213,18 +208,18 @@ export const addProfileEducation = (formData, history) => async (dispatch) => {
     history.push("/dashboard");
   } catch (err) {
     console.log(err);
-    const errors = err.response? err.response.data.errors :[ err.message];
-    if (errors.length > 0 ) {
+    const errors = err.response ? err.response.data.errors : [err.message];
+    if (errors.length > 0) {
       errors.forEach((error) => {
         dispatch(setAlert(error, "danger"));
       });
-    dispatch({
-      type: PROFILE_ERROR,
-      payload: errors,
-    });
+      dispatch({
+        type: PROFILE_ERROR,
+        payload: errors,
+      });
+    }
   }
 };
-}
 
 // delete profile education
 export const deleteProfileEducation = (id) => async (dispatch) => {
@@ -236,8 +231,8 @@ export const deleteProfileEducation = (id) => async (dispatch) => {
   };
   try {
     const result = await axios.delete(
-      `http://localhost:5000/api/profiles/me/educations/${id}`,
-      config
+      `${apiUrl}/profiles/me/educations/${id}`,
+      config,
     );
     dispatch({
       type: UPDATE_PROFILE,
@@ -248,7 +243,7 @@ export const deleteProfileEducation = (id) => async (dispatch) => {
     console.log(err);
     dispatch({
       type: PROFILE_ERROR,
-      payload: err.response?err.response.data.errors : err.message,
+      payload: err.response ? err.response.data.errors : err.message,
     });
   }
 };
@@ -263,8 +258,8 @@ export const deleteProfileExperience = (id) => async (dispatch) => {
   };
   try {
     const result = await axios.delete(
-      `http://localhost:5000/api/profiles/me/experiences/${id}`,
-      config
+      `${apiUrl}/profiles/me/experiences/${id}`,
+      config,
     );
     dispatch({
       type: UPDATE_PROFILE,
@@ -290,14 +285,11 @@ export const deleteAccount = () => async (dispatch) => {
   };
   if (
     window.confirm(
-      "your account is about to be deleted premanatly, Are You Sure.... ? "
+      "your account is about to be deleted premanatly, Are You Sure.... ? ",
     )
   ) {
     try {
-      const result = await axios.delete(
-        `http://localhost:5000/api/profiles/me/`,
-        config
-      );
+      const result = await axios.delete(`${apiUrl}/profiles/me`, config);
       dispatch({
         type: CLEAR_PROFILE,
       });
@@ -306,7 +298,6 @@ export const deleteAccount = () => async (dispatch) => {
       });
       dispatch(setAlert("Account deleted successfully"));
     } catch (err) {
-      
       dispatch({
         type: PROFILE_ERROR,
         payload: err.response ? err.response.data.errors : [err.message],
